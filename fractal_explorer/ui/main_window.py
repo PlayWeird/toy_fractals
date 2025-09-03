@@ -246,9 +246,12 @@ class FractalExplorerWindow(QMainWindow):
         start_time = time.time()
         
         try:
+            # Extract settings that are explicit parameters to avoid keyword conflicts
+            progressive = settings.pop('progressive', True)
+            bounds = settings.pop('bounds', None)
+            
             # Render fractal
-            image = self.renderer.render(progressive=settings.get('progressive', True),
-                                        **settings)
+            image = self.renderer.render(bounds=bounds, progressive=progressive, **settings)
             
             # Update canvas
             self.canvas.set_image(image)
