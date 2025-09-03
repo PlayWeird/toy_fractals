@@ -149,12 +149,33 @@ class ControlPanel(QWidget):
         
         # Create widgets for each parameter
         for param_name, param_info in params.items():
-            param_layout = QHBoxLayout()
+            # Use vertical layout for better space usage
+            param_widget = QWidget()
+            param_vlayout = QVBoxLayout()
+            param_vlayout.setSpacing(2)
+            param_vlayout.setContentsMargins(2, 2, 2, 2)
             
-            # Label
-            label = QLabel(f"{param_info.get('description', param_name)}:")
+            # Label with word wrap and shorter text
+            description = param_info.get('description', param_name)
+            # Shorten common long descriptions
+            short_descriptions = {
+                'Maximum iterations for escape calculation': 'Max Iterations',
+                'Number of points to generate': 'Point Count',
+                'Real component of Julia constant': 'Julia c (real)',
+                'Imaginary component of Julia constant': 'Julia c (imag)',
+                'Number of iterations for IFS': 'IFS Iterations'
+            }
+            short_desc = short_descriptions.get(description, description)
+            
+            label = QLabel(f"{short_desc}:")
+            label.setWordWrap(True)
             label.setToolTip(param_info.get('description', ''))
-            param_layout.addWidget(label)
+            label.setMaximumHeight(30)  # Limit label height
+            param_vlayout.addWidget(label)
+            
+            # Control layout (horizontal for slider + value)
+            control_layout = QHBoxLayout()
+            control_layout.setSpacing(4)
             
             # Create appropriate widget based on type
             param_type = param_info['type']
@@ -168,14 +189,17 @@ class ControlPanel(QWidget):
                     widget.setMaximum(param_info['max'])
                     widget.setValue(default)
                     widget.setTickPosition(QSlider.TicksBelow)
+                    widget.setMinimumWidth(120)  # Ensure slider has minimum width
                     
-                    # Add value label
+                    # Add value label with fixed width
                     value_label = QLabel(str(default))
+                    value_label.setMinimumWidth(40)
+                    value_label.setAlignment(Qt.AlignCenter)
                     widget.valueChanged.connect(
                         lambda v, l=value_label, p=param_name: self._on_slider_changed(v, l, p)
                     )
-                    param_layout.addWidget(widget)
-                    param_layout.addWidget(value_label)
+                    control_layout.addWidget(widget)
+                    control_layout.addWidget(value_label)
                 else:
                     # Use spinbox
                     widget = QSpinBox()
@@ -185,7 +209,7 @@ class ControlPanel(QWidget):
                     widget.valueChanged.connect(
                         lambda v, p=param_name: self.parameter_changed.emit(p, v)
                     )
-                    param_layout.addWidget(widget)
+                    control_layout.addWidget(widget)
                     
             elif param_type == float:
                 widget = QDoubleSpinBox()
@@ -194,10 +218,11 @@ class ControlPanel(QWidget):
                 widget.setSingleStep(param_info.get('step', 0.01))
                 widget.setDecimals(4)
                 widget.setValue(default)
+                widget.setMinimumWidth(80)
                 widget.valueChanged.connect(
                     lambda v, p=param_name: self.parameter_changed.emit(p, v)
                 )
-                param_layout.addWidget(widget)
+                control_layout.addWidget(widget)
                 
             elif param_type == str:
                 if 'options' in param_info:
@@ -213,13 +238,17 @@ class ControlPanel(QWidget):
                     widget.textChanged.connect(
                         lambda v, p=param_name: self.parameter_changed.emit(p, v)
                     )
-                param_layout.addWidget(widget)
+                control_layout.addWidget(widget)
                 
             else:
                 continue
-                
+            
+            # Add control layout to parameter layout
+            param_vlayout.addLayout(control_layout)
+            param_widget.setLayout(param_vlayout)
+            
             self.parameter_widgets[param_name] = widget
-            self.params_layout.addLayout(param_layout)
+            self.params_layout.addWidget(param_widget)
             
     def _on_slider_changed(self, value: int, label: QLabel, param_name: str):
         """Handle slider value change."""

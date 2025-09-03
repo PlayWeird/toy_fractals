@@ -153,11 +153,11 @@ class IFSFractal(Fractal):
         return {
             'iterations': {
                 'type': int,
-                'default': 100000,
-                'min': 1000,
-                'max': 10000000,
-                'step': 10000,
-                'description': 'Number of points to generate'
+                'default': self.iterations,
+                'min': 10000,
+                'max': 5000000,
+                'step': 50000,
+                'description': 'IFS Iterations'
             }
         }
     

@@ -11,7 +11,7 @@ class SierpinskiTriangle(IFSFractal):
     
     def __init__(self):
         """Initialize Sierpinski Triangle."""
-        super().__init__("Sierpinski Triangle", iterations=100000)
+        super().__init__("Sierpinski Triangle", iterations=200000)
         
     def get_transforms(self) -> List[Tuple[Callable, float]]:
         """Get the transformation functions for Sierpinski Triangle.
@@ -112,7 +112,7 @@ class BarnsleyFern(IFSFractal):
     
     def __init__(self):
         """Initialize Barnsley Fern."""
-        super().__init__("Barnsley Fern", iterations=500000)
+        super().__init__("Barnsley Fern", iterations=1000000)
         
     def get_transforms(self) -> List[Tuple[Callable, float]]:
         """Get the transformation functions for Barnsley Fern.
@@ -235,7 +235,7 @@ class DragonCurve(IFSFractal):
     
     def __init__(self):
         """Initialize Dragon Curve."""
-        super().__init__("Dragon Curve", iterations=200000)
+        super().__init__("Dragon Curve", iterations=500000)
         
     def get_transforms(self) -> List[Tuple[Callable, float]]:
         """Get the transformation functions for Dragon Curve.

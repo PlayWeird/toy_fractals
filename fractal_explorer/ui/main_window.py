@@ -12,7 +12,7 @@ from .canvas import FractalCanvas
 from .controls import ControlPanel
 from ..rendering import FractalRenderer2D
 from ..fractals import (MandelbrotSet, JuliaSet, BurningShip,
-                        SierpinskiTriangle, BarnsleyFern)
+                        SierpinskiTriangle, BarnsleyFern, DragonCurve)
 
 
 class RenderThread(QThread):
@@ -53,6 +53,7 @@ class FractalExplorerWindow(QMainWindow):
             'Burning Ship': BurningShip(),
             'Sierpinski Triangle': SierpinskiTriangle(),
             'Barnsley Fern': BarnsleyFern(),
+            'Dragon Curve': DragonCurve(),
         }
         
         # Current state
