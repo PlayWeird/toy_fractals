@@ -170,6 +170,35 @@ class IFSFractal(Fractal):
         """
         pass
     
+    def adaptive_iterations_for_zoom(self, bounds: Tuple[float, float, float, float], 
+                                   base_iterations: int) -> int:
+        """Calculate adaptive iteration count based on zoom level.
+        
+        Args:
+            bounds: Current viewing bounds
+            base_iterations: Base number of iterations
+            
+        Returns:
+            Adjusted iteration count
+        """
+        # Get default bounds to calculate zoom level
+        default_bounds = self.get_default_bounds()
+        default_width = default_bounds[1] - default_bounds[0]
+        current_width = bounds[1] - bounds[0]
+        
+        # Calculate zoom level (higher = more zoomed in)
+        zoom_level = default_width / current_width
+        
+        # Scale iterations based on zoom level
+        # Use square root to avoid excessive iteration counts
+        zoom_factor = max(1.0, zoom_level ** 0.75)
+        
+        # Cap the maximum iterations to prevent excessive computation
+        max_iterations = min(base_iterations * 10, 10000000)
+        adjusted_iterations = int(base_iterations * zoom_factor)
+        
+        return min(adjusted_iterations, max_iterations)
+    
     def compute(self, width: int, height: int, bounds: Tuple[float, float, float, float],
                 **params) -> np.ndarray:
         """Compute IFS fractal using random iteration algorithm.
@@ -185,6 +214,10 @@ class IFSFractal(Fractal):
         """
         iterations = params.get('iterations', self.iterations)
         xmin, xmax, ymin, ymax = bounds
+        
+        # Apply adaptive iteration scaling based on zoom level
+        if params.get('adaptive_iter', True):
+            iterations = self.adaptive_iterations_for_zoom(bounds, iterations)
         
         # Initialize result array
         result = np.zeros((height, width), dtype=np.float32)
@@ -211,12 +244,31 @@ class IFSFractal(Fractal):
             if i < skip:
                 continue
                 
-            # Map to pixel coordinates
-            px = int((x - xmin) / (xmax - xmin) * (width - 1))
-            py = int((y - ymin) / (ymax - ymin) * (height - 1))
+            # Map to pixel coordinates with sub-pixel accuracy
+            fx = (x - xmin) / (xmax - xmin) * (width - 1)
+            fy = (y - ymin) / (ymax - ymin) * (height - 1)
             
-            # Plot point if within bounds
-            if 0 <= px < width and 0 <= py < height:
+            px = int(fx)
+            py = int(fy)
+            
+            # Apply anti-aliasing by distributing the point across nearby pixels
+            if 0 <= px < width-1 and 0 <= py < height-1:
+                # Calculate fractional parts for anti-aliasing
+                dx = fx - px
+                dy = fy - py
+                
+                # Distribute the point weight across 4 neighboring pixels (bilinear)
+                w00 = (1 - dx) * (1 - dy)
+                w10 = dx * (1 - dy) 
+                w01 = (1 - dx) * dy
+                w11 = dx * dy
+                
+                result[height - 1 - py, px] += w00
+                result[height - 1 - py, px + 1] += w10
+                result[height - 1 - (py + 1), px] += w01
+                result[height - 1 - (py + 1), px + 1] += w11
+            elif 0 <= px < width and 0 <= py < height:
+                # Fall back to single pixel for edge cases
                 result[height - 1 - py, px] += 1
                 
         # Normalize and apply logarithmic scaling for better visualization

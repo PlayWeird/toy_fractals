@@ -92,11 +92,27 @@ def compute_sierpinski(width: int, height: int, bounds: Tuple[float, float, floa
         if i < skip:
             continue
             
-        # Map to pixel coordinates
-        px = int((x - xmin) / (xmax - xmin) * (width - 1))
-        py = int((y - ymin) / (ymax - ymin) * (height - 1))
+        # Map to pixel coordinates with anti-aliasing
+        fx = (x - xmin) / (xmax - xmin) * (width - 1)
+        fy = (y - ymin) / (ymax - ymin) * (height - 1)
         
-        if 0 <= px < width and 0 <= py < height:
+        px = int(fx)
+        py = int(fy)
+        
+        # Apply anti-aliasing with bilinear interpolation
+        if 0 <= px < width-1 and 0 <= py < height-1:
+            dx = fx - px
+            dy = fy - py
+            w00 = (1 - dx) * (1 - dy)
+            w10 = dx * (1 - dy)
+            w01 = (1 - dx) * dy
+            w11 = dx * dy
+            
+            result[height - 1 - py, px] += w00
+            result[height - 1 - py, px + 1] += w10
+            result[height - 1 - (py + 1), px] += w01
+            result[height - 1 - (py + 1), px + 1] += w11
+        elif 0 <= px < width and 0 <= py < height:
             result[height - 1 - py, px] += 1
     
     # Normalize
@@ -215,11 +231,27 @@ def compute_barnsley_fern(width: int, height: int, bounds: Tuple[float, float, f
         if i < skip:
             continue
             
-        # Map to pixel coordinates
-        px = int((x - xmin) / (xmax - xmin) * (width - 1))
-        py = int((y - ymin) / (ymax - ymin) * (height - 1))
+        # Map to pixel coordinates with anti-aliasing
+        fx = (x - xmin) / (xmax - xmin) * (width - 1)
+        fy = (y - ymin) / (ymax - ymin) * (height - 1)
         
-        if 0 <= px < width and 0 <= py < height:
+        px = int(fx)
+        py = int(fy)
+        
+        # Apply anti-aliasing with bilinear interpolation
+        if 0 <= px < width-1 and 0 <= py < height-1:
+            dx = fx - px
+            dy = fy - py
+            w00 = (1 - dx) * (1 - dy)
+            w10 = dx * (1 - dy)
+            w01 = (1 - dx) * dy
+            w11 = dx * dy
+            
+            result[height - 1 - py, px] += w00
+            result[height - 1 - py, px + 1] += w10
+            result[height - 1 - (py + 1), px] += w01
+            result[height - 1 - (py + 1), px + 1] += w11
+        elif 0 <= px < width and 0 <= py < height:
             result[height - 1 - py, px] += 1
     
     # Apply logarithmic scaling for better visualization
@@ -308,11 +340,27 @@ def compute_dragon_curve(width: int, height: int, bounds: Tuple[float, float, fl
         if i < skip:
             continue
             
-        # Map to pixel coordinates
-        px = int((x - xmin) / (xmax - xmin) * (width - 1))
-        py = int((y - ymin) / (ymax - ymin) * (height - 1))
+        # Map to pixel coordinates with anti-aliasing
+        fx = (x - xmin) / (xmax - xmin) * (width - 1)
+        fy = (y - ymin) / (ymax - ymin) * (height - 1)
         
-        if 0 <= px < width and 0 <= py < height:
+        px = int(fx)
+        py = int(fy)
+        
+        # Apply anti-aliasing with bilinear interpolation
+        if 0 <= px < width-1 and 0 <= py < height-1:
+            dx = fx - px
+            dy = fy - py
+            w00 = (1 - dx) * (1 - dy)
+            w10 = dx * (1 - dy)
+            w01 = (1 - dx) * dy
+            w11 = dx * dy
+            
+            result[height - 1 - py, px] += w00
+            result[height - 1 - py, px + 1] += w10
+            result[height - 1 - (py + 1), px] += w01
+            result[height - 1 - (py + 1), px + 1] += w11
+        elif 0 <= px < width and 0 <= py < height:
             result[height - 1 - py, px] += 1
     
     # Normalize
