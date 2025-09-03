@@ -13,6 +13,7 @@ from .controls import ControlPanel
 from ..rendering import FractalRenderer2D
 from ..fractals import (MandelbrotSet, JuliaSet, BurningShip,
                         SierpinskiTriangle, BarnsleyFern, DragonCurve)
+from ..fractals.deterministic_fractals import DeterministicSierpinskiTriangle
 
 
 class RenderThread(QThread):
@@ -51,7 +52,8 @@ class FractalExplorerWindow(QMainWindow):
             'Mandelbrot Set': MandelbrotSet(),
             'Julia Set': JuliaSet(),
             'Burning Ship': BurningShip(),
-            'Sierpinski Triangle': SierpinskiTriangle(),
+            'Sierpinski Triangle': DeterministicSierpinskiTriangle(),
+            'Sierpinski (Random)': SierpinskiTriangle(),
             'Barnsley Fern': BarnsleyFern(),
             'Dragon Curve': DragonCurve(),
         }

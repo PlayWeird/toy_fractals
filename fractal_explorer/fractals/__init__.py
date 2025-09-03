@@ -3,6 +3,7 @@
 from .base import Fractal, EscapeTimeFractal, IFSFractal
 from .escape_time import MandelbrotSet, JuliaSet, BurningShip
 from .ifs import SierpinskiTriangle, BarnsleyFern, DragonCurve
+from .deterministic_fractals import DeterministicSierpinskiTriangle
 
 __all__ = [
     "Fractal",
@@ -14,4 +15,5 @@ __all__ = [
     "SierpinskiTriangle",
     "BarnsleyFern",
     "DragonCurve",
+    "DeterministicSierpinskiTriangle",
 ]
