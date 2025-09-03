@@ -16,16 +16,16 @@ class FractalExplorer:
         
     def run(self):
         """Run the application."""
+        # Enable high DPI support BEFORE creating QApplication
+        QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+        QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+        
         # Create Qt application
         self.app = QApplication(sys.argv)
         
         # Set application properties
         self.app.setApplicationName("Fractal Explorer")
         self.app.setOrganizationName("FractalExplorer")
-        
-        # Enable high DPI support
-        self.app.setAttribute(Qt.AA_EnableHighDpiScaling, True)
-        self.app.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
         
         # Create and show main window
         self.window = FractalExplorerWindow()

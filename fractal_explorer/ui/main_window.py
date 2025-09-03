@@ -43,6 +43,9 @@ class FractalExplorerWindow(QMainWindow):
         """Initialize the main window."""
         super().__init__()
         
+        # Initialization flag
+        self._initializing = True
+        
         # Available fractals
         self.fractals = {
             'Mandelbrot Set': MandelbrotSet(),
@@ -63,10 +66,23 @@ class FractalExplorerWindow(QMainWindow):
         self._setup_menu()
         self._setup_statusbar()
         
-        # Initialize with first fractal
+        # Initialize with first fractal (defer rendering)
+        self._initializing = True
         first_fractal = list(self.fractals.keys())[0]
         self.control_panel.set_fractals(self.fractals)
         self.control_panel.fractal_combo.setCurrentText(first_fractal)
+        self._initializing = False
+        
+    def showEvent(self, event):
+        """Handle window show event - trigger initial render."""
+        super().showEvent(event)
+        # Use a timer to defer the render until after the window is fully shown
+        QTimer.singleShot(100, self._initial_render)
+        
+    def _initial_render(self):
+        """Perform the initial fractal render."""
+        if self.renderer:
+            self._render_fractal()
         
     def _setup_ui(self):
         """Setup the user interface."""
@@ -159,10 +175,27 @@ class FractalExplorerWindow(QMainWindow):
         
     def _on_fractal_changed(self, name: str):
         """Handle fractal type change."""
-        if name in self.fractals:
-            self.current_fractal = self.fractals[name]
+        if not name or name not in self.fractals:
+            return
             
-            # Create new renderer
+        if getattr(self, '_initializing', False):
+            # During initialization, just set up the fractal and renderer without rendering
+            self.current_fractal = self.fractals[name]
+            if hasattr(self, 'canvas') and self.canvas:
+                self.renderer = FractalRenderer2D(
+                    self.current_fractal,
+                    max(400, self.canvas.width()),  # Use minimum size during init
+                    max(300, self.canvas.height())
+                )
+                self.canvas.set_renderer(self.renderer)
+            self.render_params = {}
+            return
+            
+        # Normal operation
+        self.current_fractal = self.fractals[name]
+        
+        # Create new renderer
+        if hasattr(self, 'canvas') and self.canvas:
             self.renderer = FractalRenderer2D(
                 self.current_fractal,
                 self.canvas.width(),
@@ -198,7 +231,7 @@ class FractalExplorerWindow(QMainWindow):
                 
     def _render_fractal(self):
         """Render the current fractal."""
-        if not self.renderer:
+        if not self.renderer or getattr(self, '_initializing', False):
             return
             
         # Update status
